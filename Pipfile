@@ -7,11 +7,13 @@ name = "pypi"
 requests = "*"
 numpy = "*"
 pandas = "*"
+openpyxl = "*"
 galvani = "*"
 scipy = "*"
 bokeh = "*"
 
 [dev-packages]
+pytest = "*"
 
 [requires]
 python_version = "3"
