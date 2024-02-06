@@ -8,10 +8,11 @@ from scipy.signal import savgol_filter
 import sqlite3
 import os
 import matplotlib.pyplot as plt
-# Version 0.1.0
+from typing import Union
+from pathlib import Path
+
 # Different cyclers name their columns slightly differently 
 # These dictionaries are guides for the main things you want to plot
-
 res_col_dict = {'Voltage': 'Voltage',
                 'Capacity': 'Capacity'}
 
@@ -334,13 +335,14 @@ def arbin_excel(df):
 
     return df
 
-def neware_reader(filename: str):
-    if filename.endswith('.nda'):
+def neware_reader(filename: Union[str, Path]):
+    filename = Path(filename)
+    if filename.suffix == '.nda':
         nda_df = read_nda(filename)
     else:
         ndax_df = read_ndax(filename)
 
-    # remap to navani format
+    # TODO: remap to navani format
     return df
 
 
