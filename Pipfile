@@ -9,7 +9,7 @@ numpy = "*"
 pandas = "*"
 openpyxl = "*"
 galvani = { git = "git+https://github.com/chatcannon/galvani@JhonFlash-master" }
-NewareNDA = "*"
+NewareNDA = "2024.2.1"
 scipy = "*"
 matplotlib = "*"
 
