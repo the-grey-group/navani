@@ -1,5 +1,7 @@
 from galvani import MPRfile
 from galvani import res2sqlite as r2s
+from NewareNDA.NewareNDA import read as read_nda
+from NewareNDA.NewareNDAx import read_ndax
 import pandas as pd
 import numpy as np
 from scipy.signal import savgol_filter
@@ -93,6 +95,8 @@ def echem_file_loader(filepath):
                 df = arbin_excel(df)
             else:
                 raise ValueError('Names of sheets not recognised')
+    elif extension in (".nda", ".ndax"):
+        df = neware_reader(filepath)
     else:
         print(extension)
 
@@ -329,6 +333,16 @@ def arbin_excel(df):
         df["Time"] = df["Test_Time(s)"]
 
     return df
+
+def neware_reader(filename: str):
+    if filename.endswith('.nda'):
+        nda_df = read_nda(filename)
+    else:
+        ndax_df = read_ndax(filename)
+
+    # remap to navani format
+    return df
+
 
 def dqdv_single_cycle(capacity, voltage, 
                     polynomial_spline=3, s_spline=1e-5,
