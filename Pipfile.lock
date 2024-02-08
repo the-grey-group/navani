@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e133a49dabb6626b6f7dd99babfca847328e38eb5ed9d16e7c984369099e6d3a"
+            "sha256": "74383ada629820cfd63af9a90255e2b251ab0baaee8c86ae37846e47a5f051ad"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -235,9 +235,9 @@
             "version": "==4.48.1"
         },
         "galvani": {
-            "git": "git+https://github.com/chatcannon/galvani@JhonFlash-master",
+            "git": "git+https://github.com/echemdata/galvani@master",
             "markers": "python_version >= '3.6'",
-            "ref": "4971f2b550ee964940b4c68e41a4c87cfcb05fc6"
+            "ref": "1fd9f8454a7054c28464fda6ebb1e4b3c65ad270"
         },
         "idna": {
             "hashes": [
@@ -393,12 +393,9 @@
             "version": "==3.8.2"
         },
         "newarenda": {
-            "hashes": [
-                "sha256:801ac74cea925f5dffd89dc40a677bad9bec163033e0b3bdbf4b4a35d8383171",
-                "sha256:8b97e302d51e8ff9186cc81a5cfaca4a23d80d6e18c4fe0a1d8e9005d59d346b"
-            ],
+            "git": "git+https://github.com/ml-evs/NewareNDA@master",
             "markers": "python_version >= '3.6'",
-            "version": "==2024.2.1"
+            "ref": "6024a43b814703504cc54370721df98804695763"
         },
         "numpy": {
             "hashes": [
