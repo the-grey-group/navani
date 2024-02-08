@@ -1,7 +1,6 @@
 from galvani import MPRfile
 from galvani import res2sqlite as r2s
-from NewareNDA.NewareNDA import read as read_nda
-from NewareNDA.NewareNDAx import read_ndax
+from NewareNDA.NewareNDA import read
 import pandas as pd
 import numpy as np
 from scipy.signal import savgol_filter
@@ -73,6 +72,8 @@ def echem_file_loader(filepath):
             df = new_land_processing(df)
         elif "Record" in names[0]:
             df_list = [xlsx.parse(0)]
+            if not isinstance(df_list, list) or not isinstance(df_list[0], pd.DataFrame):
+                raise RuntimeError("First sheet is not a dataframe; cannot continue parsing {filepath=}")
             col_names = df_list[0].columns
 
             for sheet_name in names[1:]:
@@ -80,6 +81,8 @@ def echem_file_loader(filepath):
                     if len(xlsx.parse(sheet_name, header=None)) != 0:
                         df_list.append(xlsx.parse(sheet_name, header=None))
             for sheet in df_list:
+                if not isinstance(sheet, pd.DataFrame):
+                    raise RuntimeError("Sheet is not a dataframe; cannot continue parsing {filepath=}")
                 sheet.columns = col_names
             df = pd.concat(df_list)
             df.set_index('Index', inplace=True)
@@ -100,9 +103,12 @@ def echem_file_loader(filepath):
         df = neware_reader(filepath)
     else:
         print(extension)
+        raise RuntimeError("Filetype {extension=} not recognised.")
 
     # Adding a full cycle column
-    df['full cycle'] = (df['half cycle']/2).apply(np.ceil)
+    if "half cycle" in df.columns:
+        df['full cycle'] = (df['half cycle']/2).apply(np.ceil)
+
     return df
 
 def arbin_res(df):
@@ -335,14 +341,19 @@ def arbin_excel(df):
 
     return df
 
-def neware_reader(filename: Union[str, Path]):
-    filename = Path(filename)
-    if filename.suffix == '.nda':
-        nda_df = read_nda(filename)
-    else:
-        ndax_df = read_ndax(filename)
+def neware_reader(filename: Union[str, Path]) -> pd.DataFrame:
+    filename = str(filename)
+    df = read(filename)
 
-    # TODO: remap to navani format
+    # remap to expected navani columns and units
+    df.set_index("Index", inplace=True)
+    df["Capacity"] = 1000 * df["Discharge_Capacity(mAh)"] + df["Charge_Capacity(mAh)"]
+    df["Current"] = 1000* df["Current(mA)"]
+    df["state"] = pd.Categorical(values=["unknown"] * len(df["Status"]), categories=["R", 1, 0, "unknown"])
+    df["state"][df["Status"] == "Rest"] = "R"
+    df["state"][df["Status"] == "CC_Chg"] = 1
+    df["state"][df["Status"] == "CC_DChg"] = 0
+    df["half cycle"] = df["Cycle"]
     return df
 
 

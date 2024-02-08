@@ -194,8 +194,26 @@ def test_nda():
         "Current",
         "full cycle",
     )
+    assert all(c in df for c in cols), f"Some columns from {cols} were missing in {df.columns}"
 
-    assert set(cols) == set(df)
+def test_ndax():
+    import navani.echem as ec 
+
+    test_path = pathlib.Path(__file__).parent.parent / "Example_data" / "test.ndax"
+
+    df = ec.echem_file_loader(test_path)
+    cols = (
+        "index",
+        "state",
+        "cycle change",
+        "half cycle",
+        "Capacity",
+        "Voltage",
+        "Current",
+        "full cycle",
+    )
+
+    assert all(c in df for c in cols), f"Some columns from {cols} were missing in {df.columns}"
 
 @pytest.mark.parametrize("test_path", [
     "00_test_01_OCV_C01.mpr",
