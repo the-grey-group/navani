@@ -3,6 +3,7 @@ from galvani import res2sqlite as r2s
 from NewareNDA.NewareNDA import read
 import pandas as pd
 import numpy as np
+import warnings
 from scipy.signal import savgol_filter
 import sqlite3
 import os
@@ -342,18 +343,27 @@ def arbin_excel(df):
     return df
 
 def neware_reader(filename: Union[str, Path]) -> pd.DataFrame:
+    """Reads a Neware NDA/NDAX file into a pandas DataFrame using NewareNDA."""
     filename = str(filename)
-    df = read(filename)
+    # capture any warnings from NewareNDA and handle the ones about autoscaling
+    with warnings.catch_warnings(record=True) as w:
+        df = read(filename, error_on_missing=False)
+    for warning in w:
+        warnings.warn(f"{warning.message}", category=warning.category)
 
     # remap to expected navani columns and units
     df.set_index("Index", inplace=True)
+    df.index.rename("index", inplace=True)
     df["Capacity"] = 1000 * df["Discharge_Capacity(mAh)"] + df["Charge_Capacity(mAh)"]
-    df["Current"] = 1000* df["Current(mA)"]
+    df["Current"] = 1000 * df["Current(mA)"]
     df["state"] = pd.Categorical(values=["unknown"] * len(df["Status"]), categories=["R", 1, 0, "unknown"])
     df["state"][df["Status"] == "Rest"] = "R"
     df["state"][df["Status"] == "CC_Chg"] = 1
     df["state"][df["Status"] == "CC_DChg"] = 0
     df["half cycle"] = df["Cycle"]
+    df['cycle change'] = False
+    not_rest_idx = df[df['state'] != 'R'].index
+    df.loc[not_rest_idx, 'cycle change'] = df.loc[not_rest_idx, 'state'].ne(df.loc[not_rest_idx, 'state'].shift())
     return df
 
 

@@ -179,13 +179,17 @@ def test_arbin_res():
     assert all(c in df for c in cols)
 
 def test_nda():
-    import navani.echem as ec 
+    import navani.echem as ec
 
     test_path = pathlib.Path(__file__).parent.parent / "Example_data" / "test.nda"
 
-    df = ec.echem_file_loader(test_path)
+    with pytest.warns(RuntimeWarning, match="scaling") as record:
+        df = ec.echem_file_loader(test_path)
+
+    # Filter out any other warning messages
+    record = [r for r in record if r.category is RuntimeWarning and "scaling" in str(r.message)]
+    assert len(record) == 1
     cols = (
-        "index",
         "state",
         "cycle change",
         "half cycle",
@@ -194,7 +198,7 @@ def test_nda():
         "Current",
         "full cycle",
     )
-    assert all(c in df for c in cols), f"Some columns from {cols} were missing in {df.columns}"
+    assert all(c in df for c in cols), f"Some columns from {cols} were missing in {df.columns}: {set(cols) - set(df.columns)}"
 
 def test_ndax():
     import navani.echem as ec 
@@ -203,7 +207,6 @@ def test_ndax():
 
     df = ec.echem_file_loader(test_path)
     cols = (
-        "index",
         "state",
         "cycle change",
         "half cycle",
